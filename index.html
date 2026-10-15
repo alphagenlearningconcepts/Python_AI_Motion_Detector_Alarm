@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python AI: Motion Burglar Alarm System - Alphagen Learning</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts: Poppins & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              purple: '#5E48C4',
+              purpleDark: '#4A3AAD',
+              purpleMid: '#7B6ED4',
+              purplePale: '#EAE7FE',
+              purpleGhost: '#F5F4FF',
+              yellow: '#FFD071',
+              yellowDark: '#E6B84A',
+              yellowPale: '#FFF3CC',
+              black: '#1A1A1A',
+              greyDark: '#404048',
+              greyMid: '#888896',
+              greyLight: '#F2F2F4',
+              cyan: '#59E4FB',
+              cyanDark: '#055F6E',
+              cyanPale: '#E0FAFE',
+              coral: '#ED5661',
+              coralDark: '#993040',
+              coralPale: '#FFF0F1',
+              green: '#10B981',
+              greenDark: '#047857'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #5E48C4;
+      color: #1A1A1A;
+      overflow-x: hidden;
+      user-select: none;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+    }
+
+    .slide-stage {
+      width: 100%;
+      max-width: 1140px;
+      min-height: 620px;
+      margin: 0 auto;
+      position: relative;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+    .slide-panel.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes walkMove {
+      0% { transform: translateX(0px); }
+      100% { transform: translateX(240px); }
+    }
+    .stick-figure-sim {
+      transform: translateX(0px);
+      transition: transform 3s ease-in-out;
+    }
+    .stick-figure-sim.moving {
+      transform: translateX(240px);
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-brand-purple">
+
+  <!-- TOP HEADER BAR -->
+  <header class="w-full bg-brand-purple px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-white shadow-md">
+    <div class="flex items-center gap-3">
+      <a href="#" class="bg-brand-yellow hover:bg-brand-yellowDark text-brand-black px-4 py-2 rounded-xl font-extrabold text-xs md:text-sm shadow-sm transition-all flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="tracking-wide">ALPHAGEN LEARNING</span>
+      </a>
+      <span class="font-extrabold text-base md:text-xl tracking-tight text-white">Motion Burglar Alarm System</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-sm font-bold">
+        <span>Jump to:</span>
+        <select id="jump-menu" onchange="goToSlide(parseInt(this.value))" class="bg-white text-brand-black rounded-lg px-3 py-1.5 text-sm font-bold focus:outline-none cursor-pointer shadow-inner">
+          <!-- Generated via JS -->
+        </select>
+      </div>
+      <button onclick="toggleSound()" class="bg-brand-purpleDark hover:bg-brand-purpleMid text-white p-2 rounded-lg transition-all" title="Toggle Sound">
+        <i class="fa-solid fa-volume-high text-base" id="sound-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STAGE AREA -->
+  <main class="w-full flex-grow flex items-center justify-center p-4">
+    <div class="slide-stage">
+
+      <!-- ================= SLIDE 1: Title Slide ================= -->
+      <div class="slide-panel active justify-center items-center text-center my-auto gap-6" id="slide-1">
+        <div class="inline-block bg-brand-purplePale text-brand-purple px-5 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-sm">
+          Python AI
+        </div>
+        
+        <h1 class="font-extrabold text-4xl sm:text-5xl md:text-6xl text-brand-black leading-tight max-w-4xl">
+          Motion Burglar Alarm System
+        </h1>
+
+        <button onclick="nextSlide()" class="mt-4 bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold text-xl md:text-2xl px-10 py-4 rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
+          <span>Start Exploring</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- ================= SLIDE 2: Motion Simulation ================= -->
+      <div class="slide-panel" id="slide-2">
+        <div>
+          <div class="mb-3">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">Live Simulation</span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Watch Motion Detection in Action 🚶‍♂️🚨</h2>
+          </div>
+
+          <div class="relative w-full h-52 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 rounded-2xl border-2 border-brand-purpleMid overflow-hidden flex items-center justify-center my-3 shadow-inner">
+            <!-- Alert Banner -->
+            <div id="sim-alert-banner" class="absolute top-3 bg-red-600 text-white font-extrabold text-sm px-6 py-1.5 rounded-full shadow-lg transition-all opacity-0">
+              🚨 MOTION DETECTED!
+            </div>
+
+            <!-- Stick Figure with Bounding Box -->
+            <div id="sim-figure" class="absolute left-10 stick-figure-sim flex flex-col items-center">
+              <div id="sim-box" class="border-2 border-transparent p-1 transition-all rounded-xl">
+                <div class="text-5xl">🏃‍♂️</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center bg-brand-purplePale p-3 rounded-xl border border-brand-purpleMid/30">
+          
+          <button onclick="triggerSimAlert()" class="bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold text-xs px-4 py-2 rounded-xl shadow">
+            Simulate Intruder Alarm 🚨
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= SLIDE 3: Brainstorming Use Cases (Vertical layout) ================= -->
+      <div class="slide-panel" id="slide-3">
+        <div>
+          <div class="mb-2">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">Brainstorming Session</span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Where Can Motion Burglar Alarms Work? 🤔</h2>
+          </div>
+
+          <p class="text-xs md:text-sm text-brand-greyDark font-medium mb-2">Type places where security motion detectors are installed:</p>
+
+          <div class="flex gap-2 mb-3">
+            <input type="text" id="useCaseInput" placeholder="e.g. Bank vaults, home front door..." class="flex-1 p-2.5 rounded-xl border-2 border-brand-purpleMid text-xs md:text-sm bg-white font-medium focus:outline-none">
+            <button onclick="submitUseCase()" class="bg-brand-purple hover:bg-brand-purpleDark text-white font-bold px-5 py-2.5 rounded-xl text-xs md:text-sm shadow">Check ➔</button>
+          </div>
+
+          <div id="useCaseFeedback" class="hidden space-y-2 mt-1">
+            <h3 class="font-extrabold text-xs text-brand-purple">✨ Real-World Applications & Explanations:</h3>
+            <div class="flex flex-col space-y-2 text-xs">
+              <div class="bg-brand-yellowPale p-2.5 rounded-xl border border-brand-yellowDark flex items-center gap-3">
+                <span class="text-2xl">🏦</span>
+                <div>
+                  <strong class="block mb-0.5">Bank Vaults</strong>
+                  <span class="text-[11px] text-brand-greyDark">Triggers silent alarms if unauthorized motion is captured after closing hours.</span>
+                </div>
+              </div>
+              <div class="bg-brand-cyanPale p-2.5 rounded-xl border border-brand-cyanDark flex items-center gap-3">
+                <span class="text-2xl">🖼️</span>
+                <div>
+                  <strong class="block mb-0.5">Art Galleries</strong>
+                  <span class="text-[11px] text-brand-greyDark">Protects priceless museum exhibits by detecting perimeter breaches.</span>
+                </div>
+              </div>
+              <div class="bg-brand-purplePale p-2.5 rounded-xl border border-brand-purpleMid flex items-center gap-3">
+                <span class="text-2xl">🏡</span>
+                <div>
+                  <strong class="block mb-0.5">Smart Doorways</strong>
+                  <span class="text-[11px] text-brand-greyDark">Sends mobile notifications when visitors or package delivery persons approach.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+      </div>
+
+      <!-- ================= SLIDE 4: Interactive Pipeline Flow (With Image Placeholders & Image Tags) ================= -->
+      <div class="slide-panel" id="slide-4">
+        <div>
+          <div class="mb-3">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">System Workflow</span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Project Flow </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            <!-- Left: Options -->
+            <div class="md:col-span-5 grid grid-cols-1 gap-1.5 text-xs font-bold">
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-1">
+                <button onclick="runPipelineStep(1)" class="flex-1 text-left">📹 1. Camera Feed (Read Frames)</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-2">
+                <button onclick="runPipelineStep(2)" class="flex-1 text-left">🔄 2. Frame Absolute Difference</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-3">
+                <button onclick="runPipelineStep(3)" class="flex-1 text-left">⚪ 3. Grayscale Conversion</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-4">
+                <button onclick="runPipelineStep(4)" class="flex-1 text-left">🌫️ 4. Gaussian Blur</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-5">
+                <button onclick="runPipelineStep(5)" class="flex-1 text-left">🌓 5. Binary Threshold Mask</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-6">
+                <button onclick="runPipelineStep(6)" class="flex-1 text-left">🪄 6. Dilation (Hole Filling)</button>
+              </div>
+              <div class="flex items-center gap-2 bg-brand-purpleGhost p-2.5 border border-brand-purpleMid rounded-xl text-brand-purple" id="step-wrapper-7">
+                <button onclick="runPipelineStep(7)" class="flex-1 text-left">🔵 7. Find Contours (Blobs)</button>
+              </div>
+              <div class="flex items-center gap-2 bg-red-50 p-2.5 border border-red-400 rounded-xl text-red-700" id="step-wrapper-8">
+                <button onclick="runPipelineStep(8)" class="flex-1 text-left font-bold">🚨 8. Alarm Trigger</button>
+              </div>
+            </div>
+
+            <!-- Right: Image Placeholder with Image Tag & Code/Explanation Display -->
+            <div class="md:col-span-7 flex flex-col justify-between bg-slate-900 p-4 rounded-2xl border-2 border-slate-700 shadow-inner min-h-[300px]">
+              <div class="flex flex-col items-center justify-center mb-3">
+                <!-- Image Placeholder with Image Tag -->
+                <div id="pipeline-image-placeholder" class="w-full max-h-48 bg-slate-800 border-2 border-dashed border-slate-600 rounded-xl flex flex-col items-center justify-center text-slate-400 text-xs font-mono mb-2 overflow-hidden p-1">
+                    <img id="pipeline-img-tag" src="" alt="Pipeline Stage Visual" class="w-full h-full object-contain max-h-44" />
+                  <div id="pipeline-img-fallback" class="flex flex-col items-center justify-center">
+                    <span class="text-2xl mb-1">🖼️</span>
+                    <span id="placeholder-label">[ Image Placeholder for Stage Output ]</span>
+                  </div>
+                </div>
+                <div id="pipeline-screen-text" class="text-emerald-400 font-mono text-xs font-bold text-center">
+                  Click any pipeline stage on the left to inspect!
+                </div>
+              </div>
+
+              <!-- Code Box & Syntax Input Box -->
+              <div id="pipeline-code-container" class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-xs text-cyan-300 mb-3">
+                <div id="pipeline-code-display"># Select a pipeline stage on the left</div>
+                <div id="pipeline-syntax-input-wrap" class="hidden mt-2.5 flex gap-2">
+                  <input type="text" id="pipeline-syntax-box" placeholder="Type function keyword..." class="flex-1 p-2 rounded bg-slate-900 border border-slate-700 text-white text-xs">
+                  <button onclick="checkPipelineSyntax()" class="bg-brand-yellow text-brand-black px-4 py-1.5 rounded font-bold text-xs hover:bg-brand-yellowDark transition" id="syntax-check-btn">Check</button>
+                </div>
+              </div>
+
+              <!-- Explanation Box -->
+              <div id="pipeline-desc" class="text-xs text-brand-black font-medium bg-brand-yellowPale p-3 rounded-xl w-full border border-brand-yellowDark space-y-1">
+                <div><strong>What happens:</strong> Select a pipeline stage above to inspect how motion detection operates.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center text-xs font-bold text-brand-greyMid mt-2">Pipeline Walkthrough & Inspection</div>
+      </div>
+
+      <!-- ================= SLIDE 5: Static Frame Processing Lab ================= -->
+      <div class="slide-panel" id="slide-5">
+        <div>
+          <div class="mb-2">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">Step-by-Step Processing</span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Coding Challenge </h2>
+          </div>
+
+          <p class="text-xs text-brand-greyDark font-medium mb-3">Execute these steps on your two static images (empty room vs room with intruder):</p>
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>1. Read Two Static Frames:</strong> Load two static image files representing empty room vs intruder.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>2. Compute Absolute Difference</strong></span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>3. Grayscale Conversion</strong></span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>4. Gaussian Blur</strong> </span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>5. Binary Threshold Mask</strong> </span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>6. Dilation & Contours</strong> </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-brand-yellowPale p-2.5 rounded-xl border border-brand-yellowDark text-center text-xs font-bold text-brand-black">
+          💡 <strong>Developer Note:</strong> Use <code class="bg-white px-1 rounded font-mono">cv2.imshow("Stage Output", output)</code> after each step <strong>from step 3 onwards</strong> to see the output change!
+        </div>
+      </div>
+
+      <!-- ================= SLIDE 6: Live Webcam Coding Challenge ================= -->
+      <div class="slide-panel" id="slide-6">
+        <div>
+          <div class="mb-2">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">Live Webcam Motion Burglar Alarm/span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Coding Challenge </h2>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>1. Import Modules:</strong> Import <code class="bg-white px-1 rounded font-mono">cv2</code> and <code class="bg-white px-1 rounded font-mono">numpy</code>.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>2. Initialize Video Capture:</strong> Set up <code class="bg-white px-1 rounded font-mono">cap = cv2.VideoCapture(0)</code>.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>3. Read Initial Frames:</strong> Read consecutive frames for temporal comparison.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+                <span><strong>4 Continuous While Loop </strong> Start <code class="bg-white px-1 rounded font-mono">while cap.isOpened():</code> </span>
+              </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>5. Pipeline Processing:</strong> Apply <code class="bg-white px-1 rounded font-mono">absdiff</code>, grayscale, blur, threshold, and dilation.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>5. Contours :</strong> Find contours, filter small areas.</span>
+            </label>
+          </div>
+        </div>
+
+        
+      </div>
+
+      <!-- ================= SLIDE 7: Live Webcam Cleanup & Loop ================= -->
+      <div class="slide-panel" id="slide-7">
+        <div>
+          <div class="mb-2">
+            <span class="text-brand-purple font-bold text-xs uppercase tracking-wider">Live Webcam Motion Burglar Alarm</span>
+            <h2 class="text-2xl md:text-3xl text-brand-black font-bold">Coding Challenge 2 Contd.</h2>
+          </div>
+
+         
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>6. </strong> Create a variable<strong>motion_detected</strong>  and set it to False.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>7. </strong> Loop through all detected contours to check for movement.Ignore small contours with an area less than 500 using <code>cv2.contourArea()</code>
+
+                .</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>8. </strong>   Find the position and size <strong>(x,y,w and h) </strong>of the detected motion using <strong>cv2.boundingRect()</strong> and draw a red rectangle around the moving object using<strong>cv2.rectangle()</strong>.</span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+              <span><strong>9. </strong> Use <strong>cv2.putText() </strong>to display "MOTION DETECTED!" on the video frame. Set motion_detected to <strong>True.</strong></span>
+            </label>
+            <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+                <span><strong>10.</strong>Display the video with motion detection using <strong>cv2.imshow().</strong> </span>
+              </label>
+              <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+                <span><strong>11. </strong>Update frame1 with frame2 and read the next frame<strong>(frame2)     </strong>        </span>
+              </label>
+              <label class="flex items-center gap-3 bg-brand-purpleGhost p-2.5 rounded-xl border border-brand-purpleMid cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 accent-brand-purple">
+                <span><strong>12. </strong>Press<strong> Q</strong> to exit, release the camera and close the window.            </span>
+              </label>
+          </div>
+        </div>
+
+        <div class="bg-brand-yellowPale p-2.5 rounded-xl border border-brand-yellowDark text-center text-xs font-bold text-brand-black">
+          ✨ Once all steps are completed, your live webcam burglar alarm system is fully operational!
+        </div>
+      </div>
+
+      <!-- ================= SLIDE 8: Knowledge Check & Celebration ================= -->
+      <div class="slide-panel justify-center items-center text-center my-auto gap-4" id="slide-8">
+        <div class="text-5xl mb-1"></div>
+        <h2 class="text-2xl md:text-3xl text-brand-black font-extrabold">Motion Burglar Alarm Project Complete!</h2>
+        
+        <div class="w-full max-w-xl text-left space-y-3 text-xs bg-brand-purpleGhost p-4 rounded-2xl border border-brand-purpleMid">
+          <p class="font-bold text-brand-purple mb-1"> Knowledge Check Quiz:</p>
+          
+          <div>
+            <label class="block font-medium mb-1">1. Why do we need Gaussian Blur?</label>
+            <select class="w-full p-2 rounded-xl border border-brand-purpleMid bg-white font-medium" id="quiz1">
+              <option value="">Select answer...</option>
+              <option value="correct">To filter sensor noise and prevent false alarms</option>
+              <option value="wrong">To make the video colorful</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-1">2. Why convert to Grayscale?</label>
+            <select class="w-full p-2 rounded-xl border border-brand-purpleMid bg-white font-medium" id="quiz2">
+              <option value="">Select answer...</option>
+              <option value="correct">To reduce 3 channels to 1, making calculations faster</option>
+              <option value="wrong">To turn the image black and white permanently</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-1">3. Why read two frames at the beginning?</label>
+            <select class="w-full p-2 rounded-xl border border-brand-purpleMid bg-white font-medium" id="quiz3">
+              <option value="">Select answer...</option>
+              <option value="correct">To compute absolute differences over time</option>
+              <option value="wrong">To record a movie</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="verifyAndCelebrate()" class="mt-2 bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold text-base px-8 py-3 rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95">
+          Submit Completion! 
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM FOOTER BAR -->
+  <footer class="w-full bg-brand-purple px-5 py-3 flex items-center justify-between text-white shadow-inner">
+    <button id="prev-btn" onclick="prevSlide()" class="bg-white hover:bg-brand-purplePale text-brand-purple px-5 py-2 rounded-xl font-extrabold text-sm flex items-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Previous</span>
+    </button>
+
+    <div class="flex items-center gap-1.5" id="dots-container">
+      <!-- Generated via JS -->
+    </div>
+
+    <button id="next-btn" onclick="nextSlide()" class="bg-brand-yellow hover:bg-brand-yellowDark text-brand-black px-5 py-2 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow transition-all">
+      <span>Next</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </footer>
+
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 8;
+    let soundEnabled = true;
+
+    /* Sound Effects Generator using Web Audio API */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'pop') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.08);
+        }
+      } catch (e) {
+        console.log("Audio exception", e);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      icon.className = soundEnabled ? 'fa-solid fa-volume-high text-base' : 'fa-solid fa-volume-xmark text-base';
+    }
+
+    function triggerSimAlert() {
+      playSound('correct');
+      const banner = document.getElementById('sim-alert-banner');
+      const box = document.getElementById('sim-box');
+      const fig = document.getElementById('sim-figure');
+
+      fig.classList.add('moving');
+      banner.style.opacity = '1';
+      box.className = 'border-2 border-emerald-500 bg-emerald-100/40 p-1 rounded-xl shadow-lg transition-all';
+      setTimeout(() => {
+        banner.style.opacity = '0';
+        box.className = 'border-2 border-transparent p-1 transition-all';
+        fig.classList.remove('moving');
+      }, 3000);
+    }
+
+    function submitUseCase() {
+      const val = document.getElementById('useCaseInput').value.trim();
+      if (val.length > 0) {
+        playSound('correct');
+        document.getElementById('useCaseFeedback').classList.remove('hidden');
+      } else {
+        alert('Please type a location first!');
+      }
+    }
+
+    let activePipelineStep = 1;
+
+    const stepsData = {
+      1: { 
+        title: "📹 1. Camera Feed (Read Frames)", 
+        code: "ret, frame1 = cap.read()\nret, frame2 = cap.read()", 
+        syntaxBox: false, 
+        imgSrc: "1.png", // Add your image URL here, e.g., "images/camera_feed.png"
+        bg: "bg-brand-purplePale", 
+        text: "Reads consecutive frames so motion can be compared over time." 
+      },
+      2: { 
+        title: "🔄 2. Frame Absolute Difference", 
+        code: "diff = cv2.absdiff(frame1, frame2)", 
+        syntaxBox: false, 
+        imgSrc: "2.png", // Add your image URL here
+        bg: "bg-brand-yellowPale", 
+        text: "Isolates moving objects by calculating absolute pixel differences." 
+      },
+      3: { 
+        title: "⚪ 3. Grayscale Conversion", 
+        code: "", 
+        syntaxBox: true, 
+        expectedKeyword: "cvtColor", 
+        wrapperId: "step-wrapper-3",
+        imgSrc: "3.png", // Add your image URL here
+        bg: "bg-brand-purplePale", 
+        text: "Reduces 3 channels to 1 channel for 3x faster math calculations." 
+      },
+      4: { 
+        title: "🌫️ 4. Gaussian Blur", 
+        code: "", 
+        syntaxBox: true, 
+        expectedKeyword: "GaussianBlur", 
+        wrapperId: "step-wrapper-4",
+        imgSrc: "4.png", // Add your image URL here
+        bg: "bg-brand-cyanPale", 
+        text: "Smooths the image to eliminate camera sensor noise and prevent false alarms." 
+      },
+      5: { 
+        title: "🌓 5. Binary Threshold Mask", 
+        code: "", 
+        syntaxBox: true, 
+        expectedKeyword: "threshold", 
+        wrapperId: "step-wrapper-5",
+        imgSrc: "5.png", // Add your image URL here
+        bg: "bg-brand-yellowPale", 
+        text: "Converts pixel changes > 20 into pure white and rest to black." 
+      },
+      6: { 
+        title: "🪄 6. Dilation (Hole Filling)", 
+        code: "dilated = cv2.dilate(thresh, None, iterations=3)", 
+        syntaxBox: false, 
+        imgSrc: "6.png", // Add your image URL here
+        bg: "bg-brand-purplePale", 
+        text: "Expands white regions to fill small interior holes in moving objects." 
+      },
+      7: { 
+        title: "🔵 7. Find Contours", 
+        code: "contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)", 
+        //syntaxBox: true, 
+        expectedKeyword: "findContours", 
+        wrapperId: "step-wrapper-7",
+        imgSrc: "7.png", // Add your image URL here
+        bg: "bg-brand-cyanPale", 
+        text: "Traces continuous outlines of white blobs to identify motion objects." 
+      },
+      8: { 
+        title: "🚨 8. Alarm Trigger", 
+        code: "cv2.rectangle(frame1, (x,y), (x+w,y+h), (0,255,0), 2)", 
+        syntaxBox: false, 
+        imgSrc: "8.png", // Add your image URL here
+        bg: "bg-red-50", 
+        text: "Draws green bounding box and triggers console warning when motion area > 500px." 
+      }
+    };
+
+    function runPipelineStep(step) {
+      playSound('pop');
+      activePipelineStep = step;
+      const imgTag = document.getElementById('pipeline-img-tag');
+      const imgFallback = document.getElementById('pipeline-img-fallback');
+      const text = document.getElementById('pipeline-screen-text');
+      const codeDisplay = document.getElementById('pipeline-code-display');
+      const syntaxWrap = document.getElementById('pipeline-syntax-input-wrap');
+      const desc = document.getElementById('pipeline-desc');
+      const syntaxBox = document.getElementById('pipeline-syntax-box');
+      const checkBtn = document.getElementById('syntax-check-btn');
+
+      const data = stepsData[step];
+      if (data) {
+        if (data.imgSrc) {
+          imgTag.src = data.imgSrc;
+          imgTag.classList.remove('hidden');
+          imgFallback.classList.add('hidden');
+        } else {
+          imgTag.classList.add('hidden');
+          imgFallback.classList.remove('hidden');
+          document.getElementById('placeholder-label').innerText = `[ Image Placeholder for ${data.title} ]`;
+        }
+
+        text.innerText = data.title;
+        codeDisplay.innerText = data.code;
+
+        if (data.syntaxBox) {
+          syntaxWrap.classList.remove('hidden');
+          syntaxBox.value = '';
+          syntaxBox.disabled = false;
+          syntaxBox.className = "flex-1 p-2 rounded bg-slate-900 border border-slate-700 text-white text-xs";
+          checkBtn.disabled = false;
+        } else {
+          syntaxWrap.classList.add('hidden');
+        }
+
+        desc.innerHTML = `<div class="p-2.5 rounded-lg ${data.bg} border border-brand-purpleMid/30"><strong>What happens :</strong> ${data.text}</div>`;
+      }
+    }
+
+    function checkPipelineSyntax() {
+      const syntaxBox = document.getElementById('pipeline-syntax-box');
+      const val = syntaxBox.value.trim().toLowerCase();
+      const data = stepsData[activePipelineStep];
+      const checkBtn = document.getElementById('syntax-check-btn');
+
+      if (data && data.syntaxBox) {
+        if (val === data.expectedKeyword.toLowerCase()) {
+          playSound('correct');
+          syntaxBox.className = "flex-1 p-2 rounded bg-emerald-950 border-2 border-emerald-500 text-emerald-200 text-xs font-bold";
+          syntaxBox.disabled = true;
+          checkBtn.disabled = true;
+
+          // Turn corresponding left step green
+          const wrapper = document.getElementById(data.wrapperId);
+          if (wrapper) {
+            wrapper.className = "flex items-center gap-2 bg-emerald-100 p-2.5 border-2 border-emerald-500 rounded-xl text-emerald-900 font-bold transition-all";
+          }
+        } else {
+          playSound('wrong');
+          syntaxBox.className = "flex-1 p-2 rounded bg-red-950 border-2 border-red-500 text-red-200 text-xs font-bold animate-shake";
+          setTimeout(() => {
+            syntaxBox.className = "flex-1 p-2 rounded bg-slate-900 border border-slate-700 text-white text-xs";
+          }, 500);
+        }
+      }
+    }
+
+    function initNavigation() {
+      const dotsContainer = document.getElementById('dots-container');
+      const jumpMenu = document.getElementById('jump-menu');
+      dotsContainer.innerHTML = '';
+      jumpMenu.innerHTML = '';
+
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-2 h-2 rounded-full transition-all ${i === 1 ? 'bg-brand-yellow w-5' : 'bg-white/40 hover:bg-white'}`;
+        dot.onclick = () => goToSlide(i);
+        dot.title = `Slide ${i}`;
+        dot.id = `dot-${i}`;
+        dotsContainer.appendChild(dot);
+
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = `Slide ${i}`;
+        jumpMenu.appendChild(opt);
+      }
+    }
+
+    function updateSlideDisplay() {
+      document.querySelectorAll('.slide-panel').forEach((panel, idx) => {
+        panel.classList.remove('active');
+        if (idx + 1 === currentSlide) {
+          panel.classList.add('active');
+        }
+      });
+
+      document.getElementById('jump-menu').value = currentSlide;
+
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (dot) {
+          dot.className = (i === currentSlide) ? 'w-5 h-2 rounded-full bg-brand-yellow transition-all' : 'w-2 h-2 rounded-full bg-white/40 hover:bg-white transition-all';
+        }
+      }
+
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      prevBtn.disabled = currentSlide === 1;
+
+      if (currentSlide === totalSlides) {
+        nextBtn.innerHTML = `<span>Finish</span> <i class="fa-solid fa-flag-checkered"></i>`;
+      } else {
+        nextBtn.innerHTML = `<span>Next</span> <i class="fa-solid fa-arrow-right"></i>`;
+      }
+    }
+
+    function goToSlide(slideNum) {
+      if (slideNum >= 1 && slideNum <= totalSlides) {
+        currentSlide = slideNum;
+        playSound('pop');
+        updateSlideDisplay();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) goToSlide(currentSlide - 1);
+    }
+
+    function verifyAndCelebrate() {
+      const q1 = document.getElementById('quiz1').value;
+      const q2 = document.getElementById('quiz2').value;
+      const q3 = document.getElementById('quiz3').value;
+
+      if (q1 === 'correct' && q2 === 'correct' && q3 === 'correct') {
+        playSound('correct');
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+        }
+        alert('🎉 All answers correct! Great job completing the Motion Burglar Alarm project!');
+      } else {
+        playSound('wrong');
+        alert('Please review your answers and select the correct option for each question.');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    window.onload = () => {
+      initNavigation();
+      updateSlideDisplay();
+      runPipelineStep(1);
+    };
+  </script>
+</body>
+</html>
